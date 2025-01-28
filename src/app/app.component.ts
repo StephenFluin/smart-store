@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
@@ -15,10 +15,11 @@ declare global {
 
 @Component({
     selector: 'app-root',
-    templateUrl: './app.component.html',
-    standalone: false
+    templateUrl: './app.component.html'
 })
 export class AppComponent {
+    changeDetector = inject(ChangeDetectorRef);
+
     ethereum = window.ethereum;
     browserProvider = new ethers.BrowserProvider(window.ethereum);
     chainAProvider = new ethers.JsonRpcProvider('https://rpc.ankr.com/polygon_mumbai');
@@ -46,10 +47,16 @@ export class AppComponent {
     axlHash = '';
 
     msg = '';
+
+    /** Inserted by Angular inject() migration for backwards compatibility */
+    constructor(...args: unknown[]);
     // Polygon Token 0x4a3c470930650260DD854967330E4E5C77b24911
     // Optimism Token 0xC4f04B94353c798454C008D19648350331C515C8
 
-    constructor(router: Router, title: Title, public changeDetector: ChangeDetectorRef) {
+    constructor() {
+        const router = inject(Router);
+        const title = inject(Title);
+
         // Google Analytics
         router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((n: any) => {
             title.getTitle();
