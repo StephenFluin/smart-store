@@ -1,90 +1,63 @@
 <div class="container">
   <h1
-        style="
-            background-color: Red;
-            color: white;
-            border-radius: 100%;
-            height: 200px;
-            width: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0px auto;
-        "
-    >
+    style="
+      background-color: Red;
+      color: white;
+      border-radius: 100%;
+      height: 200px;
+      width: 200px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0px auto;
+    "
+  >
     Smart Store
   </h1>
   <p>A demonstration of CDP's Developer APIs.</p>
   <p>Imagine a store that could intelligently charge or recommend swaps based on the tokens of a users' wallet.</p>
-  @if (ethereum) {
-    @if (!account) {
-      <button (click)="connect()">Connect Wallet</button>
-    }
-    @if (account) {
-      <p>
-        Connected to {{ account
-        }}<!-- on {{chainName}}-->
-      </p>
-    }
-  }
-  @if (!ethereum) {
-    Please install a crypto wallet like <a href="https://metamask.io">Metamask</a>.
-  }
-  <div style="display: flex; justify-content: space-around">
-    <div>
-      <h2>Polygon</h2>
-      @if (chainABalance >= 0) {
-        <div>
-          <a
-            href="https://mumbai.polygonscan.com/address/0x4a3c470930650260DD854967330E4E5C77b24911"
-            target="_blank"
-            >Balance: {{ chainABalance }} MATIC</a
-            >
-          </div>
+  @if (ethereum) { @if (!account()) {
+  <button (click)="connect()">Sign In</button>
+  } @if (account()) {
+  <p>
+    Connected to {{ account()
+    }}<!-- on {{chainName}}-->
+  </p>
+  @if(tokens()) {
+  <p>
+    This store collects payments in
+    <a href="https://sepolia.basescan.org/token/0x036CbD53842c5426634e7929541eC2318f3dCF7e" target="_blank">USDC</a>. We
+    found the following tokens in your wallet:
+  </p>
+  <table style="margin: 0px auto">
+    @for(token of tokens(); track $index) { @if(token.asset.type == "erc20") {
+    <tr>
+      <td>
+        {{ token | tokenValue }}
+      </td>
+      <td>
+        <a href="https://sepolia.basescan.org/token/{{ token.asset.groupId }}" target="_blank">{{
+          token.asset.groupId | tokenLookup
+        }}</a>
+      </td>
+      <td>
+        @if((token | tokenLookup) != 'USDC'){
+        <button (click)="swap(token.asset.groupId)">Swap</button>
         }
-
-        @if (ethereum) {
-          <form (submit)="submitChainA($event)">
-            Set Balance:
-            <input type="number" [value]="chainABalance >= 0 ? chainABalance : null" />
-            <button type="submit">Update</button>
-          </form>
-        }
-        @if (chainAHash) {
-          <div class="hash">
-            <a href="https://mumbai.polygonscan.com/tx/{{ chainAHash }}" target="_blank">{{ chainAHash }}</a>
-          </div>
-        }
-      </div>
-      <div>
-        <h2>Optimism</h2>
-        @if (chainBBalance >= 0) {
-          <div>
-            <a
-              href="https://goerli-optimism.etherscan.io/address/0xC4f04B94353c798454C008D19648350331C515C8"
-              target="_blank"
-              >Balance: {{ chainBBalance }} ETH</a
-              >
-            </div>
-          }
-          @if (ethereum) {
-            <form (submit)="submitChainB($event)">
-              Set Balance: <input type="number" [value]="chainBBalance >= 0 ? chainBBalance : null" />
-              <button type="submit">Update</button>
-            </form>
-          }
-          @if (chainBHash) {
-            <div class="hash">
-              <a href="https://goerli-optimism.etherscan.io/tx/{{ chainBHash }}" target="_blank">{{ chainBHash }}</a>
-            </div>
-          }
-        </div>
-      </div>
-      <div>{{ msg }}</div>
-      @if (axlHash) {
-        <div>
-          <a href="https://testnet.axelarscan.io/gmp/{{ axlHash }}" target="_blank">Monitor on Axelarscan</a>
-        </div>
-      }
-    </div>
-    <div style="text-align: center; color: grey; margin: 16px">Balances auto-update every 30 seconds.</div>
+      </td>
+    </tr>
+    } @else {
+    <tr>
+      <td>{{ token | tokenValue }}</td>
+      <td>native ETH</td>
+      <td></td>
+    </tr>
+    } }
+  </table>
+  @if(showSwap()) {
+  <div>
+    <app-swap-ui [account]="account()" [ethereum]="ethereum"></app-swap-ui>
+  </div>
+  } } } } @if (!ethereum) { Please install a crypto wallet like
+  <a href="https://www.coinbase.com/wallet">Coinbase Wallet</a>. }
+</div>
