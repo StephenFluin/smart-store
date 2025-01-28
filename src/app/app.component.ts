@@ -16,6 +16,7 @@ declare global {
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
+    standalone: false
 })
 export class AppComponent {
     ethereum = window.ethereum;
